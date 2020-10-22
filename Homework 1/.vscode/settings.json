@@ -1,0 +1,12 @@
+{
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "/home/vichhika/Downloads/**/*.jar"
+        ],
+        "exclude": [
+            "/home/vichhika/Downloads/Compressed/sqljdbc_8.4/enu/mssql-jdbc-8.4.1.jre14.jar",
+            "/home/vichhika/Downloads/Compressed/sqljdbc_8.4/enu/mssql-jdbc-8.4.1.jre8.jar"
+        ]
+    }
+}
