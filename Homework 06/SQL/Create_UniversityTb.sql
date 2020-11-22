@@ -1,0 +1,5 @@
+CREATE TABLE University(
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    "Name" CHAR(50) NOT NULL,
+    Geo GEOMETRY NOT NULL
+)
