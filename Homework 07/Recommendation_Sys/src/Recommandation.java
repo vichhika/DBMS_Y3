@@ -39,9 +39,15 @@ public class Recommandation {
     protected ArrayList<String> bySimilarPreference() throws SQLException{
         return sqlQuery("SELECT Title FROM Movie INNER JOIN [Like] ON [Like].MovieID = Movie.MovieID WHERE UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID in (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike='yes') AND UserID !="+UserID+" GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(UserID) FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'yes')) AND UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID in (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike='no') AND UserID !="+UserID+" GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(UserID) FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'no')) AND [Like].MovieID NOT IN (SELECT MovieID FROM [Like] WHERE UserID="+UserID+") AND LikeOrDislike = 'yes'");
     }
-    // protected ArrayList<String> bySimilarMostLike() throws SQLException{
-    //     return sqlQuery(add_statement_query_here);
-    // }
+    protected ArrayList<String> bySimilarMostLike() throws SQLException{
+        return sqlQuery("SELECT [Movie].Title "+
+        "FROM [Like] INNER JOIN [Movie] ON [Like].MovieID = [Movie].MovieID WHERE [Like].UserID IN (SELECT [Like].UserID "+
+        "FROM [Like] INNER JOIN [User] ON [Like].[UserID] = [User].[UserID] WHERE [Like].MovieID = "+UserID+" AND LikeOrDislike = 'yes') "+
+        "AND [Like].MovieID != "+UserID+"  "+
+        "AND LikeOrDislike = 'yes' "+
+        "AND [Like].UserID != "+UserID+" "+
+        "GROUP BY Movie.Title");
+    }
 
     private ArrayList<String> sqlQuery(String state) throws SQLException{
         list.clear();

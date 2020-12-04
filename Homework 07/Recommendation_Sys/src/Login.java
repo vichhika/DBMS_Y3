@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Login {
-    protected String userID;
+    private String userID;
     private Statement statement;
     private ResultSet rSet;
 
@@ -16,4 +16,7 @@ public class Login {
             return true;
         }else return false;
     } 
+    public String getUserID(){
+        return this.userID;
+    }
 }
