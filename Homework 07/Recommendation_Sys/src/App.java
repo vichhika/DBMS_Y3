@@ -103,7 +103,8 @@ public class App {
                     attempt--;
                 }
             }
-        }   
+        }
+        conn.close();   
     }   
 
     public static void main(String[] args) throws Exception {
