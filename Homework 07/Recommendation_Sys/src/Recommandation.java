@@ -30,23 +30,26 @@ public class Recommandation {
     }
     protected ArrayList<String> byAuthor() throws SQLException{
         return sqlQuery("SELECT Movie.Title "+
-                        "FROM  Movie INNER JOIN (Author INNER JOIN MovieDetail ON Author.AuthorID = MovieDetail.AuthorID) ON Movie.MovieID = MovieDetail.MovieID "+
-                        "WHERE Author.AuthorID IN ( SELECT Author.AuthorID FROM  [User] INNER JOIN([Like] INNER JOIN (Movie INNER JOIN (Author INNER JOIN MovieDetail ON Author.AuthorID = MovieDetail.AuthorID) ON Movie.MovieID = MovieDetail.MovieID) ON [Like].MovieID = Movie.MovieID) ON [User].UserID = [Like].UserID WHERE [User].UserID = "+UserID+" AND LikeOrDislike = 'yes' GROUP BY Author.AuthorID) "+ 
-                        "AND Movie.MovieID NOT IN ( SELECT Movie.MovieID "+
-                        "FROM [User] INNER JOIN (Movie INNER JOIN [Like] ON Movie.MovieID = [Like].MovieID) ON [User].UserID = [Like].UserID "+
-                        "WHERE [User].UserID = "+UserID+" AND LikeOrDislike = 'yes')");
+                        "FROM Movie INNER JOIN ( "+
+                        "    Author INNER JOIN MovieDetail ON Author.AuthorID = MovieDetail.AuthorID "+
+                        "    ) ON Movie.MovieID = MovieDetail.MovieID "+
+                        "WHERE Author.AuthorID IN ( "+
+                        "SELECT Author.AuthorID "+
+                        "FROM  [User] INNER JOIN([Like] INNER JOIN (Movie INNER JOIN (Author INNER JOIN MovieDetail ON Author.AuthorID = MovieDetail.AuthorID) "+ 
+                        "ON Movie.MovieID = MovieDetail.MovieID) ON [Like].MovieID = Movie.MovieID) ON [User].UserID = [Like].UserID "+
+                        "WHERE [User].UserID ="+UserID+" AND LikeOrDislike = 'yes'  "+
+                        "GROUP BY Author.AuthorID "+
+                        ") AND Movie.MovieID NOT IN (  "+
+                        "SELECT [Like].MovieID "+
+                        "FROM [User] INNER JOIN [Like] ON [User].UserID = [Like].UserID "+
+                        "WHERE [User].UserID ="+UserID+" AND LikeOrDislike = 'yes' "+
+                        ")");
     }
     protected ArrayList<String> bySimilarPreference() throws SQLException{
-        return sqlQuery("SELECT Title FROM Movie INNER JOIN [Like] ON [Like].MovieID = Movie.MovieID WHERE UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID in (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike='yes') AND UserID !="+UserID+" GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(UserID) FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'yes')) AND UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID in (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike='no') AND UserID !="+UserID+" GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(UserID) FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'no')) AND [Like].MovieID NOT IN (SELECT MovieID FROM [Like] WHERE UserID="+UserID+") AND LikeOrDislike = 'yes'");
+        return sqlQuery("SELECT Title FROM Movie INNER JOIN [Like] ON [Like].MovieID = Movie.MovieID WHERE UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID IN (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'yes') AND UserID != "+UserID+" GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(*) FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'yes')) AND UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID IN (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'no') AND UserID != "+UserID+" GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(*) FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'no')) AND LikeOrDislike != 'no'  AND Movie.MovieID NOT IN (SELECT MovieID FROM [Like] WHERE UserID="+UserID+")");
     }
     protected ArrayList<String> bySimilarMostLike() throws SQLException{
-        return sqlQuery("SELECT [Movie].Title "+
-        "FROM [Like] INNER JOIN [Movie] ON [Like].MovieID = [Movie].MovieID WHERE [Like].UserID IN (SELECT [Like].UserID "+
-        "FROM [Like] INNER JOIN [User] ON [Like].[UserID] = [User].[UserID] WHERE [Like].MovieID = "+UserID+" AND LikeOrDislike = 'yes') "+
-        "AND [Like].MovieID != "+UserID+"  "+
-        "AND LikeOrDislike = 'yes' "+
-        "AND [Like].UserID != "+UserID+" "+
-        "GROUP BY Movie.Title");
+        return sqlQuery("SELECT Title FROM Movie INNER JOIN [Like] ON [Like].MovieID = Movie.MovieID WHERE UserID IN (SELECT UserID FROM [Like] WHERE MovieID IN (SELECT TOP 1 MovieID FROM [Like] WHERE MovieID IN (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'yes') AND LikeOrDislike = 'yes' GROUP BY MovieID)) AND LikeOrDislike = 'yes' AND Movie.MovieID NOT IN (SELECT MovieID FROM [Like] WHERE UserID="+UserID+" AND LikeOrDislike = 'yes') GROUP BY Title");
     }
 
     private ArrayList<String> sqlQuery(String state) throws SQLException{
