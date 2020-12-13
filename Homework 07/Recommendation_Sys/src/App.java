@@ -16,7 +16,7 @@ public class App {
             /**
              * edit databaseName, user ,and password
              */
-            dbURL="jdbc:sqlserver://localhost:1433;databaseName=RecommendationSys;user=sa;password=06042000Mnb!";
+            dbURL="jdbc:sqlserver://localhost:1433;databaseName=RecommendationSys;user=sa;password=vichhika@2020";
             conn = DriverManager.getConnection(dbURL);
             return true;
         } catch (Exception e) {
