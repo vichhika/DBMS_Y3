@@ -1,2 +1,2 @@
 //task_11
-MATCH (i:Invoice)-[:OWN_BY]-(c:Customer) WITH [d in split(c.BirthDate,"/") | toInteger(d)] AS Birth, c.Gender AS G,toInteger(replace(i.TotalAmount,"$","")) AS Total return G AS Gender,toInteger(avg(duration.between(date({day:Birth[1],month:Birth[0],year:Birth[2]}), date()).years)) AS `Average age`,"$"+toInteger(avg(Total)) AS `Average Total`
+MATCH (i:Invoice)-[:OWN_BY]-(c:Customer) WITH [d in split(c.BirthDate,"/") | toInteger(d)] AS Birth, c.Gender AS G,sum(toInteger(replace(i.TotalAmount,"$",""))) AS Total return G AS Gender,toInteger(avg(duration.between(date({day:Birth[1],month:Birth[0],year:Birth[2]}), date()).years)) AS `Average age`,"$"+toInteger(avg(Total)) AS `Average Total`
