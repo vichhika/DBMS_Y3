@@ -1,0 +1,2 @@
+//r_InvoiceID_1
+MATCH (i:Invoice),(c:Customer),(p_1:Product),(p_4:Product) WHERE i.InvoiceID = "1" AND c.CusID = "3" AND p_1.ProductID = "1" AND p_4.ProductID = "4" CREATE (i)-[:OWN_BY]->(c),(p_1)-[:ADDED_TO{Quantity:"3"}]->(i),(p_4)-[:ADDED_TO{Quantity:"5"}]->(i)

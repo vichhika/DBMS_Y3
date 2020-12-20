@@ -1,0 +1,2 @@
+//task_15
+MATCH (p:Product) WHERE NOT EXISTS {MATCH (p)-[:ADDED_TO]-(i:Invoice) WHERE "2020" IN split(i.InvoiceDate,"/")} SET p.UnitPrice = "$"+(toInteger(replace(p.UnitPrice,"$",""))-1)+".00" return p
