@@ -14,35 +14,23 @@ public class Recommandation {
     }
 
     protected ArrayList<String> mostPopular() throws SQLException {
-        return sqlQuery("MATCH (m:Movie)-[r:act{like:\"yes\"}]-(u:User) WHERE NOT exists {MATCH (m)-[r:act{like:\"yes\"}]-(:User{id:'"+this.UserID+"'})} return m.Title AS `Title`,count(r) AS `Like`  ORDER BY  Like DESC LIMIT 3");
+        return sqlQuery("MATCH (m:Movie)-[r:act{like:\"yes\"}]-(u:User) WHERE NOT exists {MATCH (m)-[r:act]-(:User{id:'"+this.UserID+"'})} return m.Title AS `Title`,count(r) AS `Like`  ORDER BY  Like DESC LIMIT 3");
     }
 
     protected ArrayList<String> mostPopularInCountry() throws SQLException {
-        return sqlQuery("call {MATCH (u:User{id:\""+this.UserID+"\"}) return u.Country AS `Country`} MATCH (m:Movie)-[r:act{like:\"yes\"}]-(u:User) WHERE NOT exists {MATCH (m)-[r:act{like:\"yes\"}]-(:User{id:\""+this.UserID+"\"})} AND u.Country = Country return m.Title AS `Title`,count(r) AS `Like` ORDER BY  Like DESC LIMIT 3");
+        return sqlQuery("call {MATCH (u:User{id:\""+this.UserID+"\"}) return u.Country AS `Country`} MATCH (m:Movie)-[r:act{like:\"yes\"}]-(u:User) WHERE NOT exists {MATCH (m)-[r:act]-(:User{id:\""+this.UserID+"\"})} AND u.Country = Country return m.Title AS `Title`,count(r) AS `Like` ORDER BY  Like DESC LIMIT 3");
     }
 
     protected ArrayList<String> byAuthor() throws SQLException {
-        return sqlQuery("call {MATCH (a:Author) WHERE exists {MATCH (a)-[:write]-(m)-[r:act{like:\"yes\"}]-(:User{id:\""+this.UserID+"\"})} return a} MATCH (m:Movie) WHERE EXISTS {(m)-[:write]-(a)} AND NOT exists {MATCH (m)-[r:act{like:\"yes\"}]-(:User{id:\""+this.UserID+"\"})} return m.Title AS `Title`");
+        return sqlQuery("MATCH (m:Movie)<-[:write]-(:Author)-[:write]->(:Movie)<-[:act{like:\"yes\"}]-(:User{id:\""+this.UserID+"\"}) WHERE NOT exists {(m)-[:act]-(:User{id:\""+this.UserID+"\"})} return m.Title AS Title LIMIT 5");
     }
 
     protected ArrayList<String> bySimilarPreference() throws SQLException {
-        return sqlQuery(
-                "SELECT Title FROM Movie INNER JOIN [Like] ON [Like].MovieID = Movie.MovieID WHERE UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID IN (SELECT MovieID FROM [Like] WHERE UserID="
-                        + UserID + " AND LikeOrDislike = 'yes') AND UserID != " + UserID
-                        + " GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(*) FROM [Like] WHERE UserID=" + UserID
-                        + " AND LikeOrDislike = 'yes')) AND UserID = (SELECT TOP 1 UserID FROM [Like] WHERE MovieID IN (SELECT MovieID FROM [Like] WHERE UserID="
-                        + UserID + " AND LikeOrDislike = 'no') AND UserID != " + UserID
-                        + " GROUP BY UserID HAVING COUNT(UserID) = (SELECT COUNT(*) FROM [Like] WHERE UserID=" + UserID
-                        + " AND LikeOrDislike = 'no')) AND LikeOrDislike != 'no'  AND Movie.MovieID NOT IN (SELECT MovieID FROM [Like] WHERE UserID="
-                        + UserID + ")");
+        return sqlQuery("call{MATCH(a:User{id:\""+this.UserID+"\"})-[:act{like:\"yes\"}]->(m:Movie)<-[:act{like:\"yes\"}]-(b:User) return b,count(m) as vote order by vote DESC  limit 1} match (b)-[:act{like:\"yes\"}]->(m:Movie) where NOT exists {(m)<-[:act]-(:User{id:\""+this.UserID+"\"})} return m.Title AS Title LIMIT 5");
     }
 
     protected ArrayList<String> bySimilarMostLike() throws SQLException {
-        return sqlQuery(
-                "SELECT Title FROM Movie INNER JOIN [Like] ON [Like].MovieID = Movie.MovieID WHERE UserID IN (SELECT UserID FROM [Like] WHERE MovieID IN (SELECT TOP 1 MovieID FROM [Like] WHERE MovieID IN (SELECT MovieID FROM [Like] WHERE UserID="
-                        + UserID
-                        + " AND LikeOrDislike = 'yes') AND LikeOrDislike = 'yes' GROUP BY MovieID)) AND LikeOrDislike = 'yes' AND Movie.MovieID NOT IN (SELECT MovieID FROM [Like] WHERE UserID="
-                        + UserID + " AND LikeOrDislike = 'yes') GROUP BY Title");
+        return sqlQuery("CALL {MATCH (u2:User)-[a1:act{like:\"yes\"}]->(m1:Movie)<-[:act{like:\"yes\"}]-(u1:User{id:\""+this.UserID+"\"}) return m1.Title AS Title,count(a1) ORDER BY count(a1) DESC LIMIT 3}  MATCH (m:Movie)<-[:act{like:\"yes\"}]-(u:User)-[:act{like:\"yes\"}]->(m3:Movie)<-[a2:act{like:\"yes\"}]-(:User) WHERE m.Title in Title AND NOT Exists {(m3)<-[:act]-(:User{id:\""+this.UserID+"\"})} return m3.Title AS Title,count(a2) AS Like ORDER BY Like DESC LIMIT 3");
     }
 
     private ArrayList<String> sqlQuery(String state) throws SQLException {
