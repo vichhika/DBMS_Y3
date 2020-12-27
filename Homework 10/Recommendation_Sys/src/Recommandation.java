@@ -14,21 +14,15 @@ public class Recommandation {
     }
 
     protected ArrayList<String> mostPopular() throws SQLException {
-        return sqlQuery("MATCH (m:Movie)-[r:like]-(u:User) WHERE NOT exists {MATCH (m)-[r:like]-(:User{id:'"+this.UserID+"'})} return m.Title AS `Title`,count(r) AS `Like`  ORDER BY  Like DESC LIMIT 3");
+        return sqlQuery("MATCH (m:Movie)-[r:act{like:\"yes\"}]-(u:User) WHERE NOT exists {MATCH (m)-[r:act{like:\"yes\"}]-(:User{id:'"+this.UserID+"'})} return m.Title AS `Title`,count(r) AS `Like`  ORDER BY  Like DESC LIMIT 3");
     }
 
     protected ArrayList<String> mostPopularInCountry() throws SQLException {
-        return sqlQuery("call {MATCH (u:User{id:\""+this.UserID+"\"}) return u.Country AS `Country`} MATCH (m:Movie)-[r:like]-(u:User) WHERE NOT exists {MATCH (m)-[r:like]-(:User{id:\""+this.UserID+"\"})} AND u.Country = Country return m.Title AS `Title`,count(r) AS `Like` ORDER BY  Like DESC LIMIT 3");
+        return sqlQuery("call {MATCH (u:User{id:\""+this.UserID+"\"}) return u.Country AS `Country`} MATCH (m:Movie)-[r:act{like:\"yes\"}]-(u:User) WHERE NOT exists {MATCH (m)-[r:act{like:\"yes\"}]-(:User{id:\""+this.UserID+"\"})} AND u.Country = Country return m.Title AS `Title`,count(r) AS `Like` ORDER BY  Like DESC LIMIT 3");
     }
 
     protected ArrayList<String> byAuthor() throws SQLException {
-        return sqlQuery("SELECT Movie.Title "
-                + "FROM  Movie INNER JOIN (Author INNER JOIN MovieDetail ON Author.AuthorID = MovieDetail.AuthorID) ON Movie.MovieID = MovieDetail.MovieID "
-                + "WHERE Author.AuthorID IN ( SELECT Author.AuthorID FROM  [User] INNER JOIN([Like] INNER JOIN (Movie INNER JOIN (Author INNER JOIN MovieDetail ON Author.AuthorID = MovieDetail.AuthorID) ON Movie.MovieID = MovieDetail.MovieID) ON [Like].MovieID = Movie.MovieID) ON [User].UserID = [Like].UserID WHERE [User].UserID = "
-                + UserID + " AND LikeOrDislike = 'yes' GROUP BY Author.AuthorID) "
-                + "AND Movie.MovieID NOT IN ( SELECT Movie.MovieID "
-                + "FROM [User] INNER JOIN (Movie INNER JOIN [Like] ON Movie.MovieID = [Like].MovieID) ON [User].UserID = [Like].UserID "
-                + "WHERE [User].UserID = " + UserID + " AND LikeOrDislike = 'yes')");
+        return sqlQuery("call {MATCH (a:Author) WHERE exists {MATCH (a)-[:write]-(m)-[r:act{like:\"yes\"}]-(:User{id:\""+this.UserID+"\"})} return a} MATCH (m:Movie) WHERE EXISTS {(m)-[:write]-(a)} AND NOT exists {MATCH (m)-[r:act{like:\"yes\"}]-(:User{id:\""+this.UserID+"\"})} return m.Title AS `Title`");
     }
 
     protected ArrayList<String> bySimilarPreference() throws SQLException {

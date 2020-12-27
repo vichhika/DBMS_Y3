@@ -17,7 +17,7 @@ public class Update {
     protected  ArrayList<String> movieList() throws SQLException{
         list.clear();
         statement = conn.createStatement();
-        rSet = statement.executeQuery("SELECT MovieID , Title FROM Movie");
+        rSet = statement.executeQuery("MATCH (m:Movie) return m.id AS ID,m.Title AS Title;");
         while (rSet.next()) {
             list.add(rSet.getString(1));
             list.add(rSet.getString(2));
@@ -28,7 +28,7 @@ public class Update {
     protected boolean movieCheck(String movieID){
         boolean status;
         try {
-            preState = conn.prepareStatement("SELECT MovieID FROM Movie WHERE MovieID = ?");
+            preState = conn.prepareStatement("MATCH (m:Movie{id:?}) return m.Title as Title");
             preState.setString(1, movieID);
             rSet = preState.executeQuery();
             if(rSet.next()) status = true;
@@ -41,19 +41,19 @@ public class Update {
     }
 
     protected void updateUser(String movieID, String like) throws SQLException{
-        preState = conn.prepareStatement("SELECT Movie.MovieID , Title FROM Movie INNER JOIN [Like] ON [Like].MovieID = Movie.MovieID WHERE UserID=? AND Movie.MovieID = ?");
+        preState = conn.prepareStatement("MATCH (:User{id:?})-[:act]-(m:Movie{id:?}) return m.id AS ID,m.Title AS Title");
         preState.setString(1, UserID);
         preState.setString(2, movieID);
         rSet = preState.executeQuery();
         if(rSet.next()){
-            preState = conn.prepareStatement("UPDATE [Like] SET LikeOrDislike = ? WHERE UserID = ? AND MovieID = ? ");
-            preState.setString(1, like);
-            preState.setString(2, UserID);
-            preState.setString(3, movieID);
+            preState = conn.prepareStatement("MATCH (:User{id:?})-[a:act]-(m:Movie{id:?}) SET a.like = ?");
+            preState.setString(3, like);
+            preState.setString(1, UserID);
+            preState.setString(2, movieID);
             preState.executeUpdate();
         }
         else{
-            preState = conn.prepareStatement("INSERT INTO [Like] VALUES (?,?,?)");
+            preState = conn.prepareStatement("MATCH (u:User{id:?}),(m:Movie{id:?}) CREATE (u)-[:act{like:?}]->(m)");
             preState.setString(1, UserID);
             preState.setString(2, movieID);
             preState.setString(3, like);

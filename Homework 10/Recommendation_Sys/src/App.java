@@ -58,12 +58,12 @@ public class App {
                          * Display Movies by the user with strongly similar preferences
                          */
                         System.out.println("------------------[ Hot Movies ]---------------------");
-                        Display.moiveTitle(movie.bySimilarPreference());
+                        //Display.moiveTitle(movie.bySimilarPreference());
                         /**
                          * Display Movies by most users who liked the movie that you like
                          */
                         System.out.println("------------------[ Movies Most Likes ]---------------------");
-                        Display.moiveTitle(movie.bySimilarMostLike());
+                        //Display.moiveTitle(movie.bySimilarMostLike());
                         // Menu Input //
                         System.out.println("1. Rating movies"); //List all movies to provide user to like or dislike
                         System.out.println("0. Logout");
