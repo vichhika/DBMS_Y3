@@ -14,20 +14,11 @@ public class Recommandation {
     }
 
     protected ArrayList<String> mostPopular() throws SQLException {
-        return sqlQuery("SELECT TOP 3 Movie.Title,COUNT(Movie.Title) AS \"Like count\" "
-                + "FROM [User] INNER JOIN (Movie INNER JOIN [Like] ON Movie.MovieID = [Like].MovieID) ON [User].UserID = [Like].UserID "
-                + "WHERE [Like].LikeOrDislike = 'yes' and [User].UserID != " + UserID + " "
-                + "and Movie.MovieID NOT IN (SELECT Movie.MovieID FROM [User] INNER JOIN (Movie INNER JOIN [Like] ON Movie.MovieID = [Like].MovieID) ON [User].UserID = [Like].UserID WHERE [User].UserID ="
-                + UserID + ")" + "GROUP BY Movie.Title " + "ORDER BY COUNT(Movie.Title) DESC; ");
+        return sqlQuery("MATCH (m:Movie)-[r:like]-(u:User) WHERE NOT exists {MATCH (m)-[r:like]-(:User{id:'"+this.UserID+"'})} return m.Title AS `Title`,count(r) AS `Like`  ORDER BY  Like DESC LIMIT 3");
     }
 
     protected ArrayList<String> mostPopularInCountry() throws SQLException {
-        return sqlQuery("SELECT Title, COUNT(Movie.MovieID) AS LikeAmount "
-                + "FROM [User] INNER JOIN ([Like] INNER JOIN Movie ON [Like].MovieID = Movie.MovieID) ON [User].UserID = [Like].UserID "
-                + "WHERE Country IN ( SELECT Country FROM [User] WHERE UserID = " + UserID + " "
-                + ") AND [Like].UserID != " + UserID + " AND LikeOrDislike = 'yes' "
-                + "AND Movie.MovieID NOT IN (SELECT MovieID FROM [Like] WHERE UserID=" + UserID + ")"
-                + "GROUP BY Movie.Title " + "ORDER BY LikeAmount DESC; ");
+        return sqlQuery("call {MATCH (u:User{id:\""+this.UserID+"\"}) return u.Country AS `Country`} MATCH (m:Movie)-[r:like]-(u:User) WHERE NOT exists {MATCH (m)-[r:like]-(:User{id:\""+this.UserID+"\"})} AND u.Country = Country return m.Title AS `Title`,count(r) AS `Like` ORDER BY  Like DESC LIMIT 3");
     }
 
     protected ArrayList<String> byAuthor() throws SQLException {

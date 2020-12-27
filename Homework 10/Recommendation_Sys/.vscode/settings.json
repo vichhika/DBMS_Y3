@@ -2,7 +2,7 @@
     "java.project.referencedLibraries": {
         "include": [
             "lib/**/*.jar",
-            "/home/viichika/Downloads/Compressed/neo4j-jdbc-driver-3.5.1.jar",
+            "/home/viichika/Downloads/Compressed/neo4j-jdbc-driver-4.0.0.jar",
         ]
     }
 }

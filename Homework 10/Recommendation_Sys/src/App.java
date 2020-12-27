@@ -16,7 +16,7 @@ public class App {
             /**
              * edit databaseName, user ,and password
              */
-            conn = DriverManager.getConnection("jdbc:neo4j:bolt://localhost:7687","ka","r00t");
+            conn = DriverManager.getConnection("jdbc:neo4j:bolt://localhost:7687","neo4j","123");
             return true;
         } catch (Exception e) {
             System.out.println("Database connection error !");

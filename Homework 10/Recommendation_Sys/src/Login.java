@@ -9,7 +9,7 @@ public class Login {
     private ResultSet rSet;
 
     public boolean verify(String username,String password,Connection conn) throws SQLException{
-        preStatement =  conn.prepareStatement("SELECT UserID FROM \"User\" WHERE Username=? AND Password=?");
+        preStatement =  conn.prepareStatement("MATCH (u:User{Username:?,Password:?}) return u.id AS `UserID`");
         preStatement.setString(1, username);
         preStatement.setString(2, password);
         rSet = preStatement.executeQuery();
