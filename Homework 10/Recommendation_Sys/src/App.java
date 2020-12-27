@@ -107,6 +107,6 @@ public class App {
     }   
 
     public static void main(String[] args) throws Exception {
-           Connection ca = DriverManager.getConnection("jdbc:neo4j:bolt://localhost:7687","ka","r00t");
+        menu();
     }
 }
